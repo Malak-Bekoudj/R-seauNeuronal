@@ -20,7 +20,7 @@ print(f"Étiquette : {y_train[0]}")
 print("\n=== Étape 2: Créer le réseau de neurones ===")
 
 class MLP:
-    def __init__(self, couches, activation):
+    def __init__(self, couches, activation='relu'):
         self.couches = couches
         self.activation = activation
 
@@ -37,3 +37,8 @@ class MLP:
 
 
 
+    def fonction_activation(self,x):
+        if self.activation == 'relu':
+            return np.maximum(0, x)
+        else:
+            return np.tanh(x)
