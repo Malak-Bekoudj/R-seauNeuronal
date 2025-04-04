@@ -87,4 +87,9 @@ class MLP:
             if iteration % 100 == 0:
                 perte = -np.mean(y * np.log(sortie+1e-8) +(1-y) * np.log(1-sortie+1e-8)) 
                 print(f"Itération {iteration}: Perte = {perte:.4f}")
-      
+
+
+# XOR 
+print("\n=== Étape 3: Tester avec XOR ===")
+A=np.array([[0,0],[0,1],[1,0],[0,1]])
+B=np.array([[0],[1],[1],[0]])
