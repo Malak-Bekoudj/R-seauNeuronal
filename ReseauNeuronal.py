@@ -46,3 +46,9 @@ class MLP:
 
     def fonction_sigmoide(self, x):
         return 1/(1+np.exp(-x)) 
+
+    def propagation_avant(self, X):
+        activation = X.T
+        for poids, biais in zip(self.poids[-1], self.biais[:-1]):
+            z = np.dot(poids, activation )+ biais
+            activation = self.fonction_activation(z)
