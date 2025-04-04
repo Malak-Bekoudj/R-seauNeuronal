@@ -56,3 +56,19 @@ class MLP:
         #Dernière couche 
         sortie = np.dot(self.poids[-1],activation)+ self.biais[-1]
         return self.fonction_sigmoide(sortie)      
+
+    def entrainement(self,X,y,iterations=1000,taux_apprentissage=0.01):
+        y = y.reshape(1,-1)
+
+        for iteration in range(iterations):
+            #propagation avant
+            activations = [X.T]
+            valeurs_z = []
+
+            for poids, biais in zip(self.poids[:-1], self.biais[:-1]):
+                z= np.dot(poids,activations[-1])+ biais
+                a = self.fonction_activation(z)
+                valeurs_z.append(z)
+                activations.append(a)
+            sortie = self.fonction_sigmoide(np.dot(self.poids[-1],activations[-1])+self.biais[-1])
+                     
