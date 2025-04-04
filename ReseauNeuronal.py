@@ -52,3 +52,7 @@ class MLP:
         for poids, biais in zip(self.poids[-1], self.biais[:-1]):
             z = np.dot(poids, activation )+ biais
             activation = self.fonction_activation(z)
+
+        #Dernière couche 
+        sortie = np.dot(self.poids[-1],activation)+ self.biais[-1]
+        return self.fonction_sigmoide(sortie)      
