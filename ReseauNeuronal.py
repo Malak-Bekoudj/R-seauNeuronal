@@ -42,3 +42,7 @@ class MLP:
             return np.maximum(0, x)
         else:
             return np.tanh(x)
+        
+
+    def fonction_sigmoide(self, x):
+        return 1/(1+np.exp(-x)) 
