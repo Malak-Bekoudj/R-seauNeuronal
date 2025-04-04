@@ -105,5 +105,6 @@ for x, y in zip(A, B):
 
 # Entraînement sur les données du vase
 print("\n\n=== Entraîner sur les vases ===")
-vase=MLP([3,4,1], activation='relu')
+vase=MLP([3,32,16,1], activation='relu')
 vase.entrainement(X_train,y_train,iterations=10000,taux_apprentissage=0.01)
+
