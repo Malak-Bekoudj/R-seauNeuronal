@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.model_selection import train_test_split       
+from sklearn.metrics import classification_report, confusion_matrix
 #Data preparation
 print("\n=== Étape 1: Préparer les données ===")
 
@@ -108,3 +109,18 @@ print("\n\n=== Entraîner sur les vases ===")
 vase=MLP([3,32,16,1], activation='relu')
 vase.entrainement(X_train,y_train,iterations=10000,taux_apprentissage=0.01)
 
+#Évaluation et amélioration
+print("\n=== Évaluer et améliorer ===")
+def evaluation(modele,X,y):
+    predictions=np.array([modele.propagation_avant(x.reshape(1,-1)) > 0.5 for x in X]).flatten()
+
+    print("\nRapport de classification:")
+    print(classification_report(y, predictions))
+
+    print("\nMatrice de confusion:")
+    print(confusion_matrix(y, predictions))
+
+    precision=np.mean(predictions == y)
+    print(f"\nPrécision globale: {precision*100:.2f}%")
+    return precision
+precision=evaluation(vase,X_test,y_test)
