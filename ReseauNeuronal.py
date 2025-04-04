@@ -83,4 +83,8 @@ class MLP:
 
                 if i > 0:
                     erreur = (self.poids[i].T @ erreur) * (valeurs_z[i-1] > 0 if self.activation == 'relu' else (1 - np.tanh(valeurs_z[i-1])**2))
-                     
+
+            if iteration % 100 == 0:
+                perte = -np.mean(y * np.log(sortie+1e-8) +(1-y) * np.log(1-sortie+1e-8)) 
+                print(f"Itération {iteration}: Perte = {perte:.4f}")
+      
