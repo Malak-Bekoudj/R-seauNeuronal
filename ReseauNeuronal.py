@@ -91,8 +91,8 @@ class MLP:
 
 # XOR 
 print("\n=== Étape 3: Tester avec XOR ===")
-A=np.array([[0,0],[0,1],[1,0],[0,1]])
+A=np.array([[0,0],[0,1],[1,0],[1,1]])
 B=np.array([[0],[1],[1],[0]])
 
-reseau=MLP([2,2,1], activation='tanh')
+reseau=MLP([2,4,1], activation='tanh')
 reseau.entrainement(A,B,iterations=10000,taux_apprentissage=0.01)
