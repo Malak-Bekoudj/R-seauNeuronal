@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split       
 from sklearn.metrics import classification_report, confusion_matrix
 #Data preparation
-print("\n=== Étape 1: Préparer les données ===")
+print("\n===  Préparer les données ===")
 
 donnees =np.loadtxt("data.txt")
 points_3D=donnees[:, :3]
@@ -18,7 +18,7 @@ print(f"Coordonnées : {X_train[0]}")
 print(f"Étiquette : {y_train[0]}")    
 
 #Creation of the Neural Network
-print("\n=== Étape 2: Créer le réseau de neurones ===")
+print("\n=== Créer le réseau de neurones ===")
 
 class MLP:
     def __init__(self, couches, activation='relu'):
@@ -50,7 +50,7 @@ class MLP:
 
     def propagation_avant(self, X):
         activation = X.T
-        for poids, biais in zip(self.poids[-1], self.biais[:-1]):
+        for poids, biais in zip(self.poids[:-1], self.biais[:-1]):
             z = np.dot(poids, activation )+ biais
             activation = self.fonction_activation(z)
 
@@ -58,7 +58,7 @@ class MLP:
         sortie = np.dot(self.poids[-1],activation)+ self.biais[-1]
         return self.fonction_sigmoide(sortie)      
 
-    def entrainement(self,X,y,iterations=1000,taux_apprentissage=0.01):
+    def entrainement(self,X,y,iterations=1000,taux_apprentissage=0.1):
         y = y.reshape(1,-1)
 
         for iteration in range(iterations):
@@ -91,12 +91,12 @@ class MLP:
 
 
 # XOR 
-print("\n=== Étape 3: Tester avec XOR ===")
+print("\n=== Tester avec XOR ===")
 A=np.array([[0,0],[0,1],[1,0],[1,1]])
-B=np.array([[0],[1],[1],[0]])
+B=np.array([0, 1, 1, 0])
 
 reseau=MLP([2,4,1], activation='tanh')
-reseau.entrainement(A,B,iterations=10000,taux_apprentissage=0.01)
+reseau.entrainement(A,B,iterations=10000,taux_apprentissage=0.1)
 
 print("\nRésultats pour XOR:")
 for x, y in zip(A, B):
@@ -107,7 +107,7 @@ for x, y in zip(A, B):
 # Entraînement sur les données du vase
 print("\n\n=== Entraîner sur les vases ===")
 vase=MLP([3,32,16,1], activation='relu')
-vase.entrainement(X_train,y_train,iterations=10000,taux_apprentissage=0.01)
+vase.entrainement(X_train,y_train,iterations=10000,taux_apprentissage=0.1)
 
 #Évaluation et amélioration
 print("\n=== Évaluer et améliorer ===")
@@ -124,3 +124,10 @@ def evaluation(modele,X,y):
     print(f"\nPrécision globale: {precision*100:.2f}%")
     return precision
 precision=evaluation(vase,X_test,y_test)
+
+if precision < 0.9 :
+    print("\nAmélioration du réseau ")
+    vase=MLP([3,64,32,1], activation='relu')
+    vase.entrainement(X_train,y_train,iterations=2000,taux_apprentissage=0.1)
+    evaluation(vase,X_test,y_test)
+
