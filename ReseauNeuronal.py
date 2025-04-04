@@ -71,4 +71,12 @@ class MLP:
                 valeurs_z.append(z)
                 activations.append(a)
             sortie = self.fonction_sigmoide(np.dot(self.poids[-1],activations[-1])+self.biais[-1])
-                     
+
+            # Rétropropagation
+            erreur = sortie - y 
+            for i in reversed(range(len(self.poids))):
+                #le gradient
+                gradient = erreur @ activations[i].T / X.shape[0]
+                #mise a jour
+                self.poids[i] -=taux_apprentissage * gradient
+                self.biais[i] -= taux_apprentissage * erreur.mean(axis=1, keepdims=True)            
