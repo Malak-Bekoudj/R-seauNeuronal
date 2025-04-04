@@ -80,3 +80,7 @@ class MLP:
                 #mise a jour
                 self.poids[i] -=taux_apprentissage * gradient
                 self.biais[i] -= taux_apprentissage * erreur.mean(axis=1, keepdims=True)            
+
+                if i > 0:
+                    erreur = (self.poids[i].T @ erreur) * (valeurs_z[i-1] > 0 if self.activation == 'relu' else (1 - np.tanh(valeurs_z[i-1])**2))
+                     
