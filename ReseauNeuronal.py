@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.model_selection import train_test_split       
 #Data preparation
 print("\n=== Étape 1: Préparer les données ===")
 
