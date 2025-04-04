@@ -101,3 +101,9 @@ print("\nRésultats pour XOR:")
 for x, y in zip(A, B):
     prediction = reseau.propagation_avant(x.reshape(1,-1))
     print(f"Entrée {x} → Sortie:{1 if prediction > 0.5 else 0} (Attendu: {y})")
+
+
+# Entraînement sur les données du vase
+print("\n\n=== Entraîner sur les vases ===")
+vase=MLP([3,4,1], activation='relu')
+vase.entrainement(X_train,y_train,iterations=10000,taux_apprentissage=0.01)
