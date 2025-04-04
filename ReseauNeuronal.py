@@ -96,3 +96,7 @@ B=np.array([[0],[1],[1],[0]])
 
 reseau=MLP([2,4,1], activation='tanh')
 reseau.entrainement(A,B,iterations=10000,taux_apprentissage=0.01)
+
+print("\nRésultats pour XOR:")
+for x, y in zip(A, B):
+    print(f"Entrée {x} → Sortie:{1 if prediction > 0.5 else 0} (Attendu: {y})")
