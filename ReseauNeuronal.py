@@ -38,21 +38,21 @@ class MLP:
       return (Z > 0).astype(float)
     
     
-    def propagation_avant(self,X):
+    def propagation_avant(self,X,print_details=False):
        A = X.T
 
-       print("la liste des activations de chaque couche :")
-       activations = [A]
-       print(f"Activation entrée  :\n{A.T}\n")
+       if print_details:
+        print("Activation entrée  :")
+        print(A.T)
 
-       print(" la liste avant activation")
+       activations = [A]
        Avant_act = []
 
        for i in range(len(self.poids)):
             
             Z = np.dot(self.poids[i], A) + self.biases[i]
             Avant_act.append(Z)
-            print(f"Z couche {i+1} :\n{Z.T}\n")
+          
 
             if i == len(self.poids) - 1:  
                 A = self.sigmoid(Z)  
@@ -60,7 +60,9 @@ class MLP:
                 A = self.activation(Z)
             activations.append(A)
 
-            print(f"Activation après couche {i+1} :\n{A.T}\n")
+            if print_details:
+             print(f"\nZ couche {i+1} :\n{Z.T}")
+             print(f"\nActivation après couche {i+1} :\n{A.T}")
             
        return A, activations, Avant_act
     
@@ -68,9 +70,50 @@ class MLP:
     def sigmoid(self, Z):
         return 1 / (1 + np.exp(-Z))
     
+    def sigmoid_dérivée(self, Z):
+        s = self.sigmoid(Z)
+        return s * (1 - s)
 
+    
+    def retro_propagation(self, X, Y):
+       A, activations, Avant_act = self.propagation_avant(X)
+       m = X.shape[0]  
+    
+       deltas = []
+       delta_sortie = (A - Y.T) * self.sigmoid_dérivée(Avant_act[-1])
+       deltas.append(delta_sortie)
+          
+       for l in range(len(self.poids)-1, 0, -1):
+         
+         delta = np.dot(self.poids[l].T, deltas[-1]) * self.relu_dérivée(Avant_act[l-1])
+         deltas.append(delta)
+    
+       deltas = deltas[::-1]
+    
+       
+       for l in range(len(self.poids)):
+         update_poids = np.dot(deltas[l], activations[l].T) / m
+         update_biais = np.sum(deltas[l], axis=1, keepdims=True) / m
+        
+         self.poids[l] -= self.T * update_poids
+         self.biases[l] -= self.T * update_biais
+
+    def train(self, X, Y, epochs=1000):
+      
+      for epoch in range(epochs):
+        A, activations, Avant_act = self.propagation_avant(X, print_details=False)
+        loss = np.mean((A.T - Y)**2)
+
+        self.retro_propagation(X, Y)
+
+        if epoch % 100 == 0:
+            print(f"Epoch {epoch}: Loss = {loss:.5f}")
+
+
+    
 
 def main():     
+    
     
     fichier_test = "données.txt"  
     données = np.loadtxt(fichier_test)
@@ -79,16 +122,32 @@ def main():
     D = données[:, :-1]  
     print(D)
 
+    
+    D = (D - np.mean(D, axis=0)) / np.std(D, axis=0)
+    print("Valeurs moyennes apres normalisation :", np.mean(D, axis=0))
+    print("écart type apres normalisation :", np.std(D, axis=0))
+
+    Y = données[:, -1].reshape(-1, 1)
+
     print("Sorties attendues :")
-    dernière_colonne = données[:, -1] 
-    print(dernière_colonne)
+    print(Y.T)
 
     test = MLP()
     test.initialisation([3, 5, 3, 1], activation='relu', T=0.01)
 
-    A, activations, Avant_act=test.propagation_avant(D)
-    print("sortie du réseau : ")
+    test.train(D, Y, epochs=1000)
+    
+    
+    A, _, _ = test.propagation_avant(D)
+    print("Min:", np.min(A))
+    print("Max:", np.max(A))
+    print("moyenne:", np.mean(A))
+
+    A, activations, Avant_act = test.propagation_avant(D, print_details=True)
+    print("\nsortie du réseau : ")
     print(A.T)
+
+
 
 if __name__ == "__main__":
     main()
