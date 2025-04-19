@@ -75,7 +75,7 @@ class MLP:
         return s * (1 - s)
 
     
-    def retro_propagation(self, X, Y):
+    def rétropropagation(self, X, Y):
        A, activations, Avant_act = self.propagation_avant(X)
        m = X.shape[0]  
     
@@ -104,7 +104,7 @@ class MLP:
         A, activations, Avant_act = self.propagation_avant(X, print_details=False)
         loss = np.mean((A.T - Y)**2)
 
-        self.retro_propagation(X, Y)
+        self.rétropropagation(X, Y)
 
         if epoch % 100 == 0:
             print(f"Epoch {epoch}: Loss = {loss:.5f}")
@@ -128,15 +128,12 @@ def main():
     print("écart type apres normalisation :", np.std(D, axis=0))
 
     Y = données[:, -1].reshape(-1, 1)
-
     print("Sorties attendues :")
     print(Y.T)
 
     test = MLP()
     test.initialisation([3, 5, 3, 1], activation='relu', T=0.01)
-
     test.train(D, Y, epochs=1000)
-    
     
     A, _, _ = test.propagation_avant(D)
     print("Min:", np.min(A))
@@ -147,7 +144,21 @@ def main():
     print("\nsortie du réseau : ")
     print(A.T)
 
+    print("\nresultats du test XOR :")
+    
+    E = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+    print("Entrées :\n", E)
 
+    S = np.array([[0], [1], [1], [0]])  
+    print("Sorties attendues :\n",S.T)
+    
+    test_XOR =MLP()
+    test_XOR.initialisation([2, 5, 1], activation='relu', T=0.1)
+    test_XOR.train(E,S,epochs=5000)
 
+    
+    sortie_XOR, _, _ =test_XOR.propagation_avant(E)
+    print("Sorties du MLP :\n", np.round(sortie_XOR))
+ 
 if __name__ == "__main__":
     main()
