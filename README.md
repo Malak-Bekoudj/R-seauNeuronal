@@ -3,3 +3,4 @@
 
 16/03 : XOR Done (oK)
 06/04 : Too AI assisted 
+20/04 : Code rewritted, 3D classification not done yet
