@@ -1,34 +1,18 @@
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  
+
 
 class MLP:
 
     def initialisation(self, nbr_neurones , activation ='relu', T=0.01):
 
-        print("liste du nombre de neurones par couche:")
-        self.nbr_neurones = nbr_neurones
-        print(self.nbr_neurones)
-
-        print("la fonction d'activation est : ")
+        self.nbr_neurones = nbr_neurones              
         self.activation = self.relu
-        print(self.activation.__name__)
-
-        print("la dérivée de la fonction d'activation est :")
-        self.activation_dérivée =self.relu_dérivée
-        print(self.activation_dérivée.__name__)
-
-        print("le taux d'apprentissage est ")
+        self.activation_dérivée =self.relu_dérivée           
         self.T = T
-        print(self.T)
-        
-        print("la liste de matrices de poids aléatoires")
-        self.poids = [np.random.randn(nbr_neurones[i + 1],nbr_neurones[i])* np.sqrt(2 / nbr_neurones[i]) for i in range(len(nbr_neurones) - 1)]
-        for i, W in enumerate(self.poids):
-            print(f"Poids couche {i+1} :\n{W}\n")
-
-        print("la liste de vecteurs biais initialisés à 0 :")
+        self.poids = [np.random.randn(nbr_neurones[i + 1], nbr_neurones[i]) * np.sqrt(2 / nbr_neurones[i]) for i in range(len(nbr_neurones) - 1)]
         self.biases = [np.zeros((nbr_neurones[i + 1], 1)) for i in range(len(nbr_neurones) - 1)]
-        for i, b in enumerate(self.biases):
-            print(f"Biais couche {i+1} :\n{b}\n")
 
 
     def relu(self, Z):
@@ -37,43 +21,24 @@ class MLP:
     def relu_dérivée(self, Z):
       return (Z > 0).astype(float)
     
+    def sigmoid(self, Z):
+        return 1 / (1 + np.exp(-Z))
+
+    def sigmoid_dérivée(self, Z):
+        s = self.sigmoid(Z)
+        return s * (1 - s)
     
-    def propagation_avant(self,X,print_details=False):
+    def propagation_avant(self,X):
        A = X.T
-
-       if print_details:
-        print("Activation entrée  :")
-        print(A.T)
-
        activations = [A]
        Avant_act = []
 
        for i in range(len(self.poids)):
-            
             Z = np.dot(self.poids[i], A) + self.biases[i]
             Avant_act.append(Z)
-          
-
-            if i == len(self.poids) - 1:  
-                A = self.sigmoid(Z)  
-            else:
-                A = self.activation(Z)
+            A = self.sigmoid(Z) if i == len(self.poids) - 1 else self.activation(Z)
             activations.append(A)
-
-            if print_details:
-             print(f"\nZ couche {i+1} :\n{Z.T}")
-             print(f"\nActivation après couche {i+1} :\n{A.T}")
-            
        return A, activations, Avant_act
-    
-
-    def sigmoid(self, Z):
-        return 1 / (1 + np.exp(-Z))
-    
-    def sigmoid_dérivée(self, Z):
-        s = self.sigmoid(Z)
-        return s * (1 - s)
-
     
     def rétropropagation(self, X, Y):
        A, activations, Avant_act = self.propagation_avant(X)
@@ -90,7 +55,6 @@ class MLP:
     
        deltas = deltas[::-1]
     
-       
        for l in range(len(self.poids)):
          update_poids = np.dot(deltas[l], activations[l].T) / m
          update_biais = np.sum(deltas[l], axis=1, keepdims=True) / m
@@ -98,67 +62,68 @@ class MLP:
          self.poids[l] -= self.T * update_poids
          self.biases[l] -= self.T * update_biais
 
-    def train(self, X, Y, epochs=1000):
-      
+    def train(self, X, Y, epochs=20000):
+            
       for epoch in range(epochs):
-        A, activations, Avant_act = self.propagation_avant(X, print_details=False)
+        A, _, _ = self.propagation_avant(X)
         loss = np.mean((A.T - Y)**2)
-
         self.rétropropagation(X, Y)
-
         if epoch % 100 == 0:
-            print(f"Epoch {epoch}: Loss = {loss:.5f}")
+           print(f"Epoch {epoch}: Loss = {loss:.5f}")
 
 
+    def prédire(self, X):      
+        A, _, _ = self.propagation_avant(X)
+        return A.T
     
+    def précision(self, X, Y):
+       
+        prédictions = np.round(self.prédire(X))
+        exactes = (prédictions == Y).sum()
+        total = Y.shape[0]
+        pourcentage = (exactes / total) * 100
+        return pourcentage
+      
 
 def main():     
-    
-    
-    fichier_test = "données.txt"  
-    données = np.loadtxt(fichier_test)
+   
+    données = np.loadtxt("data.txt")
 
-    print("Données d'entrée :")
-    D = données[:, :-1]  
-    print(D)
-
-    
-    D = (D - np.mean(D, axis=0)) / np.std(D, axis=0)
-    print("Valeurs moyennes apres normalisation :", np.mean(D, axis=0))
-    print("écart type apres normalisation :", np.std(D, axis=0))
-
+    D = données[:, :-1]
     Y = données[:, -1].reshape(-1, 1)
-    print("Sorties attendues :")
-    print(Y.T)
+    D = (D - np.mean(D, axis=0)) / np.std(D, axis=0)
 
-    test = MLP()
-    test.initialisation([3, 5, 3, 1], activation='relu', T=0.01)
-    test.train(D, Y, epochs=1000)
-    
-    A, _, _ = test.propagation_avant(D)
-    print("Min:", np.min(A))
-    print("Max:", np.max(A))
-    print("moyenne:", np.mean(A))
-
-    A, activations, Avant_act = test.propagation_avant(D, print_details=True)
-    print("\nsortie du réseau : ")
-    print(A.T)
-
-    print("\nresultats du test XOR :")
-    
+    print("\n XOR :")
     E = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-    print("Entrées :\n", E)
+    S = np.array([[0], [1], [1], [0]])
+    xor_mlp = MLP()
+    xor_mlp.initialisation([2, 5, 1], activation='relu', T=0.1)
+    xor_mlp.train(E, S, epochs=5000)
+    sortie_XOR = xor_mlp.prédire(E)
+    print("Sorties du MLP (XOR):\n", np.round(sortie_XOR))
+       
+    mlp = MLP()
+    mlp.initialisation([3, 10, 5, 1], activation='relu', T=0.005)
+    mlp.train(D, Y, epochs=20000)
 
-    S = np.array([[0], [1], [1], [0]])  
-    print("Sorties attendues :\n",S.T)
-    
-    test_XOR =MLP()
-    test_XOR.initialisation([2, 5, 1], activation='relu', T=0.1)
-    test_XOR.train(E,S,epochs=5000)
+    précision = mlp.précision(D, Y)
+    print(f"\n Pourcentage d’apprentissage : {précision:.2f} %")
+  
+    fig = plt.figure(figsize=(10, 7))
+    ax = fig.add_subplot(111, projection='3d')
 
-    
-    sortie_XOR, _, _ =test_XOR.propagation_avant(E)
-    print("Sorties du MLP :\n", np.round(sortie_XOR))
- 
+    X_vase = D[Y.flatten() == 1]
+    X_points = D[Y.flatten() == 0]
+
+    #ax.scatter(X_points[:, 0], X_points[:, 1], X_points[:, 2], c='blue', label='Classe 0')
+    ax.scatter(X_vase[:, 0], X_vase[:, 1], X_vase[:, 2], c='red', label='Vase (classe 1)')
+
+    ax.set_title("Visualisation 3D")
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+    ax.legend()
+    plt.show()
+
 if __name__ == "__main__":
     main()
