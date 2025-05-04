@@ -117,7 +117,8 @@ def main():
           
     précision = mlp.précision(D, Y)
     print(f"\n Pourcentage d’apprentissage : {précision:.2f} %")
-    predictions = mlp.load_and_predict("data.txt")
+    predictions = mlp.load_predict("data.txt")
+    
     if predictions.size > 0:
         np.savetxt("predictions.txt", predictions)
    
