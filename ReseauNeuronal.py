@@ -102,6 +102,7 @@ def main():
     D = données[:, :-1]
     Y = données[:, -1].reshape(-1, 1)
 
+    """
     print("\n XOR :")
     E = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
     S = np.array([[0], [1], [1], [0]])
@@ -110,17 +111,17 @@ def main():
     xor_mlp.train(E, S, epochs=5000)
     sortie_XOR = xor_mlp.prédire(E)
     print("Sorties du MLP (XOR):\n", np.round(sortie_XOR))
-        
+    """   
     mlp = MLP()
     mlp.initialisation([D.shape[1], 10, 5, 1], activation='relu', T=0.005)
     mlp.train(D, Y, epochs=20000)
           
     précision = mlp.précision(D, Y)
     print(f"\n Pourcentage d’apprentissage : {précision:.2f} %")
-    predictions = mlp.load_predict("data.txt")
+    predictions = mlp.load_predict("test.txt")
     
     if predictions.size > 0:
-        np.savetxt("predictions.txt", predictions)
+        np.savetxt("test_bekoudj.txt", predictions)
    
     fig = plt.figure(figsize=(10, 7))
     ax = fig.add_subplot(111, projection='3d')
